@@ -28,8 +28,8 @@ konanArtifacts {
     program('1_OpeningAWindow') {
         srcFiles 'src/1-OpeningAWindow/main.kt'
         libraries {
-            klib 'cglew'
-            klib 'cglfw'
+            artifact 'cglew'
+            artifact 'cglfw'
             artifact 'common'
         }
     }
@@ -37,8 +37,8 @@ konanArtifacts {
     program('2_HelloTriangle') {
         srcFiles 'src/2-HelloTriangle/main.kt'
         libraries {
-            klib 'cglew'
-            klib 'cglfw'
+            artifact 'cglew'
+            artifact 'cglfw'
             artifact 'common'
         }
     }
