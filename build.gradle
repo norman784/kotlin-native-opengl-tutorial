@@ -14,18 +14,23 @@ apply plugin: 'konan'
 
 konanArtifacts {
     interop('cglew') {
-         defFile 'src/cinterop/cglew.def'
+        defFile 'src/dependencies/cglew.def'
     }
 
     interop('cglfw') {
-        defFile 'src/cinterop/cglfw.def'
+        defFile 'src/dependencies/cglew.def'
     }
 
-    program('lab') {
-        srcFiles fileTree('src/kotlin')
+    library('common') {
+        srcFiles 'src/common/common.kt'
+    }
+
+    program('2_HelloTriangle') {
+        srcFiles 'src/2-HelloTriangle/main.kt'
         libraries {
             klib 'cglew'
             klib 'cglfw'
+            artifact 'common'
         }
     }
 }
