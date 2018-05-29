@@ -18,11 +18,20 @@ konanArtifacts {
     }
 
     interop('cglfw') {
-        defFile 'src/dependencies/cglew.def'
+        defFile 'src/dependencies/cglfw.def'
     }
 
     library('common') {
         srcFiles 'src/common/common.kt'
+    }
+
+    program('1_OpeningAWindow') {
+        srcFiles 'src/1-OpeningAWindow/main.kt'
+        libraries {
+            klib 'cglew'
+            klib 'cglfw'
+            artifact 'common'
+        }
     }
 
     program('2_HelloTriangle') {
