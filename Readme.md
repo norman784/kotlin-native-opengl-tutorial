@@ -15,10 +15,15 @@ brew install glfw glew
 
 ## Running
 
+This will build and run every example.
+
 ```
 gradle build
 gradle run
 ```
+
+*Need to check in the kotlin native gradle docs 
+how to run only the desired example*
 
 ## TODO
 
@@ -32,3 +37,8 @@ gradle run
 - [ ] 6 - Keyboard and Mouse
 - [ ] 7 - Model loading
 - [ ] 8 - Basic shading
+
+## Known issues
+
+- For some reason the triangle is not drawed correctly, 
+even when the vertices seems to be correct. 
