@@ -76,8 +76,8 @@ fun main(args: Array<String>) {
 
     val vbo: Int = generateBuffer()
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
-    glBufferData(GL_ARRAY_BUFFER, (vertexBufferData.size * 4).signExtend(), vertexBufferData.toCValues(), GL_STATIC_DRAW)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE.narrow(), 4, null)
+    glBufferData(GL_ARRAY_BUFFER, (vertexBufferData.size * 4).signExtend(), vertexBufferData.refTo(0), GL_STATIC_DRAW)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE.narrow(), 0, null)
     glEnableVertexAttribArray(0)
     glBindBuffer(GL_ARRAY_BUFFER, 0)
 
