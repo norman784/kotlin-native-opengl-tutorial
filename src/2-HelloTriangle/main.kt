@@ -7,19 +7,6 @@ import kotlinx.cinterop.*
 import platform.OpenGL3.*
 import common.*
 
-private const val vertexShaderSource: String = """#version 330 core
-layout (location = 0) in vec3 position;
-void main() {
-  gl_Position = vec4(position.x, position.y, position.z, 1.0);
-}
-"""
-private const val fragmentShaderSource: String = """#version 330 core
-out vec4 color;
-void main() {
-  color = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-}
-"""
-
 fun main(args: Array<String>) {
     glewExperimental = GL_TRUE.narrow()
 
@@ -47,24 +34,11 @@ fun main(args: Array<String>) {
 
     glViewport(0, 0, 1024, 768)
 
-    val vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource)
-    val fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource)
+    val program = loadShaders("resources/2/SimpleVertexShader.glsl", "resources/2/SimpleFragmentShader.glsl")
 
-    val shaderProgram = glCreateProgram()
-    glAttachShader(shaderProgram, vertexShader)
-    glAttachShader(shaderProgram, fragmentShader)
-    glLinkProgram(shaderProgram)
+    glClearColor(0.2f, 0.3f, 0.3f, 1f)
 
-    checkProgramStatus(shaderProgram)
-
-    glDeleteShader(vertexShader)
-    glDeleteShader(fragmentShader)
-
-    val vao: Int = memScoped {
-        val resultVar: IntVarOf<Int> = alloc()
-        glGenVertexArrays(1, resultVar.ptr)
-        resultVar.value
-    }
+    val vao: Int = glGenVertexArrays(1)
 
     glBindVertexArray(vao)
 
@@ -74,7 +48,7 @@ fun main(args: Array<String>) {
                0f,  0.5f,  0f
     )
 
-    val vbo: Int = generateBuffer()
+    val vbo: Int = glGenBuffers(1)
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
     glBufferData(GL_ARRAY_BUFFER, (vertexBufferData.size * 4).signExtend(), vertexBufferData.refTo(0), GL_STATIC_DRAW)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE.narrow(), 0, null)
@@ -84,22 +58,20 @@ fun main(args: Array<String>) {
     glBindVertexArray(0)
 
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0) {
-        glfwPollEvents()
-        checkError("glfwPollEvents")
-        glClearColor(0.2f, 0.3f, 0.3f, 1f)
-        checkError("glClearColor")
         glClear(GL_COLOR_BUFFER_BIT)
-        checkError("glClear")
 
-        glUseProgram(shaderProgram)
+        glUseProgram(program)
         glBindVertexArray(vao)
         glDrawArrays(GL_TRIANGLES, 0, 3)
-        checkError("glDrawArrays")
         glBindVertexArray(0)
 
         glfwSwapBuffers(window)
-
+        glfwPollEvents()
     }
+
+    glDeleteBuffers(1, vbo)
+    glDeleteProgram(program)
+    glDeleteVertexArrays(1, vao)
 
     glfwTerminate()
 }
