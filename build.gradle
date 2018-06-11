@@ -21,12 +21,17 @@ konanArtifacts {
         defFile 'src/dependencies/cglfw.def'
     }
 
-    library('common') {
-        srcFiles 'src/common/common.kt'
+    interop('cstb') {
+        defFile 'src/dependencies/cstb.def'
+        includeDirs "${project.rootDir}/src/dependencies/c"
     }
 
-    program('1_OpeningAWindow') {
-        srcFiles 'src/1-OpeningAWindow/main.kt'
+    library('common') {
+        srcFiles fileTree('src/common')
+    }
+
+    program('1-OpeningAWindow') {
+        srcDir 'src/1-OpeningAWindow'
         libraries {
             artifact 'cglew'
             artifact 'cglfw'
@@ -34,12 +39,42 @@ konanArtifacts {
         }
     }
 
-    program('2_HelloTriangle') {
-        srcFiles 'src/2-HelloTriangle/main.kt'
+    program('2-HelloTriangle') {
+        srcDir 'src/2-HelloTriangle'
         libraries {
             artifact 'cglew'
             artifact 'cglfw'
             artifact 'common'
+        }
+    }
+
+    program('3-Matrices') {
+        srcDir 'src/3-Matrices'
+        libraries {
+            artifact 'cglew'
+            artifact 'cglfw'
+            artifact 'common'
+        }
+    }
+
+    program('5-A_Textured_Cube') {
+        srcDir 'src/5-ATexturedCube'
+        libraries {
+            artifact 'cglew'
+            artifact 'cglfw'
+            artifact 'cstb'
+            artifact 'common'
+        }
+    }
+}
+
+compileKonan {
+    doLast {
+        konanArtifacts.'1-OpeningAWindow'.forEach() { task ->
+            copy {
+                from 'src/resources'
+                into "${task.artifact.parentFile}/resources"
+            }
         }
     }
 }

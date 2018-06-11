@@ -52,61 +52,10 @@ fun glDeleteVertexArrays(n: Int, arrays: Int) = memScoped {
     platform.OpenGL3.glDeleteVertexArrays(n, int.ptr)
 }
 
-fun checkProgramStatus(program: Int) = memScoped {
-    val status = alloc<IntVar>()
-    glGetProgramiv(program, GL_LINK_STATUS, status.ptr)
-    if (status.value != GL_TRUE) {
-        val log = allocArray<ByteVar>(512)
-        glGetProgramInfoLog(program, 512, null, log)
-        throw Error("Program linking errors: ${log.toKString()}")
-    }
-}
-
-fun compileShader(type: Int, source: String) = memScoped {
-    val shader = glCreateShader(type)
-
-    if (shader == 0) throw Error("Failed to create shader")
-
-    glShaderSource(shader, 1, cValuesOf(source.cstr.getPointer(memScope)), null)
-    glCompileShader(shader)
-
-    val status = alloc<IntVar>()
-    glGetShaderiv(shader, GL_COMPILE_STATUS, status.ptr)
-
-    if (status.value != GL_TRUE) {
-        val log = allocArray<ByteVar>(512)
-        glGetShaderInfoLog(shader, 512, null, log)
-        throw Error("Shader compilation failed: ${log.toKString()}")
-    }
-
-    checkError("glShaderSource")
-
-    shader
-}
-
 fun glGenVertexArrays(n: Int): Int = memScoped {
     val resultVar: IntVarOf<Int> = alloc()
     glGenVertexArrays(n, resultVar.ptr)
     resultVar.value
-}
-
-fun loadShaders(vertexShaderFile: String, fragmentShaderFile: String): Int {
-    val vertexShaderSource = readFile(vertexShaderFile) ?: throw Error("File $vertexShaderFile not found")
-    val fragmentShaderSource = readFile(fragmentShaderFile) ?: throw Error("File $fragmentShaderFile not found")
-    val vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource)
-    val fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource)
-
-    val program = glCreateProgram()
-    glAttachShader(program, vertexShader)
-    glAttachShader(program, fragmentShader)
-    glLinkProgram(program)
-
-    checkProgramStatus(program)
-
-    glDeleteShader(vertexShader)
-    glDeleteShader(fragmentShader)
-
-    return program
 }
 
 fun readFile(path: String): String? = memScoped {
@@ -124,4 +73,91 @@ fun readFile(path: String): String? = memScoped {
     }
     fclose(file)
     return result.stringFromUtf8(0, result.size)
+}
+
+class ShaderProgram(vertex: String, fragment: String, geometry: String? = null) {
+    var id: Int
+        private set
+
+    init {
+        val vertexSource = readFile(vertex) ?: throw Error("File $vertex not found")
+        val fragmentSource = readFile(fragment) ?: throw Error("File $fragment not found")
+        val geometrySource = if (geometry != null) readFile(geometry) else null
+
+        val vertexId = compile(GL_VERTEX_SHADER, vertexSource)
+        val fragmentId = compile(GL_FRAGMENT_SHADER, fragmentSource)
+        val geometryId = if (geometrySource != null) compile(GL_GEOMETRY_SHADER, geometrySource) else null
+
+        id = glCreateProgram()
+
+        glAttachShader(id, vertexId)
+        glAttachShader(id, fragmentId)
+        if (geometryId != null) glAttachShader(id, geometryId)
+
+        glLinkProgram(id)
+
+        checkStatus()
+
+        glDeleteShader(vertexId)
+        glDeleteShader(fragmentId)
+        if (geometryId != null) glDeleteShader(geometryId)
+    }
+
+    fun setUniform(name: String, value: Boolean) {
+        glUniform1i(glGetUniformLocation(id, name), if (value) 1 else 0)
+    }
+
+    fun setUniform(name: String, value: Int) {
+        glUniform1i(glGetUniformLocation(id, name), value)
+    }
+
+    fun setUniform(name: String, value: Float) {
+        glUniform1f(glGetUniformLocation(id, name), value)
+    }
+
+    // TODO: setUniform() -> vector2, vector3, vector4, matrix2, matrix3, matrix4
+
+    fun use() {
+        glUseProgram(id)
+    }
+
+    fun reset() {
+        glUseProgram(0)
+    }
+
+    fun delete() {
+        glDeleteProgram(id)
+    }
+
+    private fun checkStatus() = memScoped {
+        val status = alloc<IntVar>()
+        glGetProgramiv(id, GL_LINK_STATUS, status.ptr)
+        if (status.value != GL_TRUE) {
+            val log = allocArray<ByteVar>(512)
+            glGetProgramInfoLog(id, 512, null, log)
+            throw Error("Program linking errors: ${log.toKString()}")
+        }
+    }
+
+    private fun compile(type: Int, source: String) = memScoped {
+        val shader = glCreateShader(type)
+
+        if (shader == 0) throw Error("Failed to create shader")
+
+        glShaderSource(shader, 1, cValuesOf(source.cstr.getPointer(memScope)), null)
+        glCompileShader(shader)
+
+        val status = alloc<IntVar>()
+        glGetShaderiv(shader, GL_COMPILE_STATUS, status.ptr)
+
+        if (status.value != GL_TRUE) {
+            val log = allocArray<ByteVar>(512)
+            glGetShaderInfoLog(shader, 512, null, log)
+            throw Error("Shader compilation failed: ${log.toKString()}")
+        }
+
+        checkError("glShaderSource")
+
+        shader
+    }
 }

@@ -1,0 +1,2 @@
+headers = stb_image.h
+compilerOpts = -DSTB_IMAGE_IMPLEMENTATION=1

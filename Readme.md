@@ -13,6 +13,14 @@ The tutorial could be found [here](http://opengl-tutorial.org).
 brew install glfw glew
 ```
 
+**Ubuntu**
+
+*Not tested*
+
+```
+sudo apt-get install libglfw3 libglfw3-dev libglew-dev
+```
+
 ## Running
 
 This will build and run every example.
@@ -38,7 +46,10 @@ how to run only the desired example*
 - [ ] 7 - Model loading
 - [ ] 8 - Basic shading
 
-## Known issues
+## CMake script to copy resources
 
-- For some reason the triangle is not drawed correctly, 
-even when the vertices seems to be correct. 
+```cmake
+add_custom_target(copy-resources ALL
+        COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/resources ${CMAKE_BINARY_DIR}/resources
+        DEPENDS ${intown})
+```
