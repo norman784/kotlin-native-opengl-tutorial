@@ -76,9 +76,7 @@ fun main(args: Array<String>) {
     // Texture uniforms
     program.use()
     program.setUniform("texture1", 0)
-    checkError("glUniform1i 0")
     program.setUniform("texture2", 1)
-    checkError("glUniform1i 1")
     program.reset()
 
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0) {
@@ -86,20 +84,15 @@ fun main(args: Array<String>) {
         glClear(GL_COLOR_BUFFER_BIT)
 
         glActiveTexture(GL_TEXTURE0)
-        checkError("glActiveTexture 0")
         glBindTexture(GL_TEXTURE_2D, texture1)
-        checkError("glBindTexture 0")
 
         glActiveTexture(GL_TEXTURE1)
-        checkError("glActiveTexture 1")
         glBindTexture(GL_TEXTURE_2D, texture2)
-        checkError("glBindTexture 1")
 
         program.use()
 
         glBindVertexArray(vao)
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null)
-        checkError("glDrawElements")
 
         program.reset()
 
