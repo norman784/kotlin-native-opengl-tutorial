@@ -56,20 +56,24 @@ fun main(args: Array<String>) {
     glBindVertexArray(vao)
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
-    glBufferData(GL_ARRAY_BUFFER, (vertices.size * 4).signExtend(), vertices.refTo(0), GL_STATIC_DRAW)
+    glBufferData(GL_ARRAY_BUFFER, (vertices.size * FloatVar.size).signExtend(), vertices.refTo(0), GL_STATIC_DRAW)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (indices.size * 4).signExtend(), indices.refTo(0), GL_STATIC_DRAW)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (indices.size * FloatVar.size).signExtend(), indices.refTo(0), GL_STATIC_DRAW)
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE.narrow(), 8 * 4, null)
-    glEnableVertexAttribArray(0)
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE.narrow(), (8 * FloatVar.size).toInt(), null)
+    glEnableVertexAttribArray(0);
+    // color attribute
+    val colorStartPosition: Long = 6 * FloatVar.size
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE.narrow(), (8 * FloatVar.size).toInt(), colorStartPosition.toCPointer<COpaque>())
+    glEnableVertexAttribArray(1);
+    // texture coord attribute
+    val textureStartPosition: Long = 6 * FloatVar.size
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE.narrow(), (8 * FloatVar.size).toInt(), textureStartPosition.toCPointer<COpaque>())
+    glEnableVertexAttribArray(2);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE.narrow(), 8 * 4, cValuesOf((3 * 4)))
-    glEnableVertexAttribArray(1)
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE.narrow(), 8 * 4, cValuesOf((6 * 4)))
-    glEnableVertexAttribArray(2)
-
+    stbi_set_flip_vertically_on_load(1)
     val texture1: Int = loadTexture("resources/5/logo.png")
     val texture2: Int = loadTexture("resources/5/smiley.png")
 
@@ -83,18 +87,16 @@ fun main(args: Array<String>) {
         glClearColor(0.2f, 0.3f, 0.3f, 1f)
         glClear(GL_COLOR_BUFFER_BIT)
 
+        program.use()
+
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, texture1)
 
         glActiveTexture(GL_TEXTURE1)
         glBindTexture(GL_TEXTURE_2D, texture2)
 
-        program.use()
-
         glBindVertexArray(vao)
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null)
-
-        program.reset()
+        glDrawElements(GL_TRIANGLES, indices.size, GL_UNSIGNED_INT, null)
 
         glfwSwapBuffers(window)
         glfwPollEvents()
