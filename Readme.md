@@ -18,7 +18,7 @@ brew install glfw glew
 *Not tested*
 
 ```
-sudo apt-get install libglfw3 libglfw3-dev libglew-dev
+sudo apt-get install libglfw3 libglfw3-dev libglew-dev gcc-multilib g++-multilib
 ```
 
 ## Running

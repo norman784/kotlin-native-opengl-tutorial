@@ -3,4 +3,5 @@ headerFilter = GLFW/*
 
 compilerOpts.osx = -I/usr/include -I/usr/local/include
 linkerOpts.osx = -L/usr/lib -L/usr/local/lib -lglfw
+compilerOpts.linux = -I/usr/include -I/usr/local/include
 linkerOpts.linux = -L/usr/lib/x86_64-linux-gnu -lglfw

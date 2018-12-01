@@ -3,4 +3,5 @@ headerFilter = GL/*
 
 compilerOpts.osx = -I/usr/include -I/usr/local/include
 linkerOpts.osx = -L/usr/lib -L/usr/local/lib -lglew
+compilerOpts.linux = -I/usr/include -I/usr/local/include
 linkerOpts.linux = -L/usr/lib/x86_64-linux-gnu -lglew
